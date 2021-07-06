@@ -160,10 +160,11 @@ gradeBox.addEventListener('submit', event => {
             if (Number.isNaN(grade)) throw new Error(i18n[lang].gradeInput.NaN);
             grade = grade.toFixed(2);
             if (grade < 0) throw new Error(i18n[lang].gradeInput.negative);
-            if (data[current][columns.grade.index] != '-') {
+            if (['', '-'].every(x => x != data[current][columns.grade.index])) {
                 if (!confirm(i18n[lang].gradeInput.upgrade(data[current][columns.grade.index],grade))) return;
             }
         }
+        grade = (grade + '').replace(/\./g, ',');
         data[current][columns.grade.index] = grade;
         tableRows[current].tr.classList.add('modified');
         tableRows[current].td[columns.grade.index].innerText = grade;
@@ -410,10 +411,10 @@ function writeCSV(data) {
     for (row of data) {
         for (let i = 0; i < row.length; i++) {
             let cell = '' + row[i];
-            if (['"',' ','\r','\n'].every(char => !cell.includes(char))) {
+            if (['"', ' ', '\r', '\n', ','].every(char => !cell.includes(char))) {
                 csv += cell;
             } else {
-                csv += '"' + cell.replace(/"/, '""') + '"';
+                csv += '"' + cell.replace(/"/g, '""') + '"';
             }
             if (i < row.length - 1) csv += ',';
             else csv += '\n';
